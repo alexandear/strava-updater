@@ -141,3 +141,45 @@ func TestClient_Activities(t *testing.T) {
 		}
 	})
 }
+
+func TestClient_UpdateActivity(t *testing.T) {
+	t.Run("encodes request correctly", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPut {
+				t.Errorf("expected method to be PUT but got %s", r.Method)
+			}
+
+			if r.URL.Path != "/activities/1" {
+				t.Errorf("expected path to be /activities/1 but got %s", r.URL.Path)
+			}
+
+			contentType := r.Header.Get("Content-Type")
+			if contentType != "application/json" {
+				t.Errorf("expected Content-Type to be application/json but got %s", contentType)
+			}
+
+			var activity struct {
+				Name string `json:"name"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&activity); err != nil {
+				t.Fatalf("expected no error but got %q", err)
+			}
+
+			wantName := "Morning Workout"
+			if activity.Name != wantName {
+				t.Errorf("expected name to be %q but got %q", wantName, activity.Name)
+			}
+		}))
+		defer server.Close()
+
+		baseURL, _ := url.Parse(server.URL)
+		client := &Client{
+			baseURL:    *baseURL,
+			httpClient: *http.DefaultClient,
+		}
+		err := client.UpdateActivity(context.Background(), 1, "Morning Workout")
+		if err != nil {
+			t.Fatalf("expected no error but got %q", err)
+		}
+	})
+}

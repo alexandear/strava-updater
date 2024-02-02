@@ -111,7 +111,11 @@ func (c *Client) Athlete(ctx context.Context) (Athlete, error) {
 	if err != nil {
 		return Athlete{}, fmt.Errorf("do request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Failed to close body: %v\n", err)
+		}
+	}()
 
 	var athlete Athlete
 	if err := json.NewDecoder(resp.Body).Decode(&athlete); err != nil {
@@ -153,11 +157,50 @@ func (c *Client) Activities(ctx context.Context, from, to time.Time, page int) (
 	if err != nil {
 		return nil, false, fmt.Errorf("do request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Failed to close body: %v\n", err)
+		}
+	}()
 
 	if err := json.NewDecoder(resp.Body).Decode(&activities); err != nil {
 		return nil, false, fmt.Errorf("decode response: %w", err)
 	}
 
 	return activities, len(activities) == perPage, nil
+}
+
+// UpdateActivity updates the name of the activity with the given id.
+// https://developers.strava.com/docs/reference/#api-Activities-updateActivityById
+func (c *Client) UpdateActivity(ctx context.Context, id int64, name string) error {
+	u := c.baseURL.JoinPath("activities", strconv.FormatInt(id, 10))
+
+	var updatableActivity = struct {
+		Name string `json:"name"`
+	}{
+		Name: name,
+	}
+
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(&updatableActivity); err != nil {
+		return fmt.Errorf("encode request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, u.String(), buf)
+	if err != nil {
+		return fmt.Errorf("create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("do request: %w", err)
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Failed to close body: %v\n", err)
+		}
+	}()
+
+	return nil
 }
