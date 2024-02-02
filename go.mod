@@ -1,4 +1,4 @@
-module github.com/alexandear/strava-rewriter
+module github.com/alexandear/strava-updater
 
 go 1.21
 

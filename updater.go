@@ -16,8 +16,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/alexandear/strava-rewriter/strava"
-	"github.com/alexandear/strava-rewriter/translate"
+	"github.com/alexandear/strava-updater/strava"
+	"github.com/alexandear/strava-updater/translate"
 )
 
 var (
