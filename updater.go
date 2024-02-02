@@ -20,8 +20,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/alexandear/strava-rewriter/strava"
+	"github.com/alexandear/strava-rewriter/translate"
 )
 
 func usage() {
@@ -35,7 +37,7 @@ var (
 )
 
 func main() {
-	log.SetFlags(0)
+	log.SetFlags(log.Ldate | log.Ltime)
 	log.SetPrefix("updater: ")
 
 	flag.Usage = usage
@@ -49,5 +51,29 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to get athlete: %v", err)
 	}
-	log.Printf("Athlete: %#v", athlete)
+	log.Printf("Current logger in athlete: %#v\n", athlete)
+
+	from := time.Date(2017, time.August, 1, 0, 0, 0, 0, time.UTC)
+	to := time.Date(2018, time.January, 1, 0, 0, 0, 0, time.UTC)
+
+	var activitiesFromTo []strava.SummaryActivity
+	for page := 1; ; page++ {
+		activities, hasNext, err := client.Activities(context.Background(), from, to, page)
+		if err != nil {
+			log.Printf("Failed to get activities for page=%d: %v\n", page, err)
+			break
+		}
+		if len(activities) == 0 {
+			break
+		}
+		activitiesFromTo = append(activitiesFromTo, activities...)
+		if !hasNext {
+			break
+		}
+	}
+	translator := translate.New()
+	for _, activity := range activitiesFromTo {
+		log.Printf("Activity: %#v\n", activity)
+		log.Printf("Translated Activity Name: %#v\n", translator.ActivityName(activity.Name))
+	}
 }
