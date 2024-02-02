@@ -1,3 +1,8 @@
+# VS Code REST Client extension file.
+# Allowing to send Strava API requests from VS Code.
+#
+# https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
 @stravaApiUrl = https://www.strava.com/api/v3
 
 # Get authorization token
