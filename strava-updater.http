@@ -1,0 +1,42 @@
+@stravaApiUrl = https://www.strava.com/api/v3
+
+# Get authorization token
+
+# 1. Paste the following URL in your browser:
+#   https://www.strava.com/api/v3/oauth/authorize?client_id=59499&scope=activity:read_all,activity:write&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force
+# 2. Copy the authorization "code" from redirect URL into "authorizationCode" variable.
+# 3. Use the authorization code to get the access token:
+
+POST https://www.strava.com/oauth/token?client_id={{clientId}}&client_secret={{clientSecret}}&code={{authorizationCode}}&grant_type=authorization_code
+
+# 4. Copy "access_token" from the response to "accessToken" variable.
+
+### Get authenticated athlete
+
+GET {{stravaApiUrl}}/athlete
+Authorization: Bearer {{accessToken}}
+
+
+### List activities
+
+GET {{stravaApiUrl}}/athlete/activities
+Authorization: Bearer {{accessToken}}
+
+
+### Get activity by id
+
+@activityId = 1367464281
+
+GET {{stravaApiUrl}}/activities/{{activityId}}
+Authorization: Bearer {{accessToken}}
+
+
+### Update activity by id
+
+PUT {{stravaApiUrl}}/activities/{{activityId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "name": "Morning Run"
+}
