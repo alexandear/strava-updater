@@ -1,8 +1,8 @@
-// Updater is console application to change Strava activities.
+// Strava Updater is console application to change Strava activities.
 //
 // Usage example:
 //
-//	updater -accessToken <access_token> -from 2021-01-01 -to 2021-12-31
+//	strava-updater -accessToken <access_token> -from 2021-01-01 -to 2021-12-31
 //
 // See strava-updater.http on how to get access token.
 package main
@@ -28,14 +28,14 @@ var (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: updater [options]\n")
+	fmt.Fprintf(os.Stderr, "usage: strava-updater [options]\n")
 	flag.PrintDefaults()
 	os.Exit(2)
 }
 
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime)
-	log.SetPrefix("updater: ")
+	log.SetPrefix("strava-updater: ")
 
 	flag.Usage = usage
 	flag.Parse()
